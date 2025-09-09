@@ -1,5 +1,5 @@
 [workspace]
-members = [ "hello-solana/src/program", "program",
+members = [
     "programs/*"
 ]
 resolver = "2"
