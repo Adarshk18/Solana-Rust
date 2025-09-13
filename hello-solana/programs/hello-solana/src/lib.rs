@@ -15,4 +15,12 @@ pub mod hello_solana {
 }
 
 #[derive(Accounts)]
-pub struct Initialize {}
+pub struct Initialize <'info>{
+    pub signer: Signer<'info>,
+    pub data_account: Account<'info,DataAccount>,
+}
+
+#[account]
+pub struct DataAccount{
+    pub hello: String,
+}
