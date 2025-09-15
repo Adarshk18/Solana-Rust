@@ -6,21 +6,28 @@ declare_id!("4d7Grr2mQuPcVoASrf3k91LuRGk21LVFbsjWL1L5p3W5");
 pub mod hello_solana {
     use super::*;
 
-    pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
-        msg!("Greetings from: {:?}", ctx.program_id);
+    pub fn initialize(ctx: Context<Initialize>, data: u64) -> Result<()> {
+        ctx.accounts.new_account.data = data;
+        msg!("Changed data to: {}!", data);
         Ok(())
     }
-
-    
 }
 
 #[derive(Accounts)]
-pub struct Initialize <'info>{
+pub struct Initialize<'info> {
+    #[account(
+        init,
+        payer=signer,
+        space = 8+8
+    )]
+    pub new_account: Account<'info, NewAccount>,
+    #[account(mut)]
     pub signer: Signer<'info>,
-    pub data_account: Account<'info,DataAccount>,
+    pub system_program: Program<'info, System>,
 }
 
 #[account]
-pub struct DataAccount{
-    pub hello: String,
+pub struct NewAccount {
+    data: u64,
 }
+
