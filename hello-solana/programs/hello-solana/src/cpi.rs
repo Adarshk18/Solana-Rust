@@ -9,12 +9,12 @@ pub mod cpi{
         account_data.message = message;
 
         let transfer_account = Transfer{
-            from: ctx.account.user.to_account_info(),
-            to: ctx.account.vault_account.to_account_info()
+            from: ctx.accounts.user.to_account_info(),
+            to: ctx.accounts.vault_account.to_account_info()
         };
 
         let cpi_context = CpiContext::new(
-            ctx.account.system_program.to_account_info(),
+            ctx.accounts.system_program.to_account_info(),
             transfer_account
         );
 
@@ -22,8 +22,24 @@ pub mod cpi{
         Ok(())
     }
 
-    pub fn delete(_ctx: Context<Delete>, message: String)-> Result<()>{
+    pub fn delete(ctx: Context<Delete>, message: String)-> Result<()>{
         msg!("Delete Message");
+
+        let user_key = ctx.accounts.user.key();
+        let signetr_seeds: &[&[&[u8]]] = &[&[b"vault",user_key.as_ref(), &[ctx.bumps.vault_account]]];
+        
+        let transfer_accounts = Transfer{
+            from: ctx.accounts.vault_account.to_account_info(),
+            to: ctx.accounts.user.to_account_info(),
+        };
+
+        let cpi_context = Context::new(
+            ctx.accounts.system_program.to_account_info(),
+            transfer_accounts,
+        ).with_signer(signer_seeds);
+
+        transfer(cpi_context,ctx.accounts.vault_account.lamports())?;
+        
         Ok(())
 
     }
